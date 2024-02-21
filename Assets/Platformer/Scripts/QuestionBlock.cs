@@ -18,12 +18,18 @@ public class QuestionBlock : MonoBehaviour, InteractableBlock
     {
         //Debug.Log("? Block hit!");
         AddCoin();
+        SpawnCoin();
         Destroy(gameObject);
     }
 
     public void AddCoin()
     {
         GameManager.instance.AddCoin();
+    }
+
+    private void SpawnCoin()
+    {
+        Instantiate(LevelResources.instance.GetCoin(), transform.position, Quaternion.identity, LevelResources.instance.transform);
     }
 
     private IEnumerator CycleTexture()
