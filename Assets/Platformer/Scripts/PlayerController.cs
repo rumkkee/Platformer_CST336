@@ -11,17 +11,52 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float _jumpBoost;
 
     private bool _isGrounded;
+    private float _horizMovement;
+
+    private bool _jumpRequested;
+    private bool _fastFall;
+
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
     }
 
+    private void Update()
+    {
+       _horizMovement = Input.GetAxis("Horizontal");
+
+        if (_isGrounded && Input.GetKeyDown(KeyCode.Space))
+        {
+            _jumpRequested = true;
+        }
+        else if(!_isGrounded)
+        {
+            _jumpRequested = false;
+
+            /*if ()
+            {
+
+            }*/
+
+            if(rb.velocity.y < 0)
+            {
+                _fastFall = true;
+                Debug.Log("Fast fall");
+            }
+            else if (Input.GetKey(KeyCode.Space))
+            {
+                _fastFall = false;
+                Debug.Log("Holding space");
+            }
+        }
+    }
+
     private void FixedUpdate()
     {
-        float horizMovement = Input.GetAxis("Horizontal");
 
-        rb.velocity += Vector3.right * (horizMovement * Time.deltaTime * _acceleration);
+
+        rb.velocity += Vector3.right * (_horizMovement * Time.deltaTime * _acceleration);
 
         // Jump Check
         Collider col = GetComponent<Collider>();
@@ -35,16 +70,13 @@ public class PlayerController : MonoBehaviour
         Color lineColor = _isGrounded ? Color.red : Color.blue;
         Debug.DrawLine(startPoint, endPoint, lineColor, 0f, false);
 
-        if (_isGrounded && Input.GetKeyDown(KeyCode.Space))
+        if (_jumpRequested)
         {
                 rb.AddForce(Vector3.up * _jumpImpulse, ForceMode.Impulse);
         }
-        else if(!_isGrounded && Input.GetKey(KeyCode.Space))
+        else if(_fastFall)
         {
-            if(rb.velocity.y > 0)
-            {
-               rb.AddForce(Vector3.up * _jumpBoost, ForceMode.Force);
-            }
+               rb.AddForce(Vector3.down * _jumpBoost, ForceMode.Force);
         }
 
         // Speed Regulation
@@ -58,7 +90,7 @@ public class PlayerController : MonoBehaviour
 
         // Turning Speed Regulation
 
-        if (Mathf.Abs(horizMovement) < 0.5f)
+        if (Mathf.Abs(_horizMovement) < 0.5f)
         {
             Vector3 newVel = rb.velocity;
             newVel.x *= 1f - Time.deltaTime;
@@ -67,5 +99,22 @@ public class PlayerController : MonoBehaviour
 
         float yaw = (rb.velocity.x > 0) ? 90 : -90;
         transform.rotation = Quaternion.Euler(0f, yaw, 0f);
+
+        // Animator
+
+        float speed = Mathf.Abs(rb.velocity.x);
+        Animator anim = GetComponent<Animator>();
+        anim.SetFloat("speed", speed);
+        anim.SetBool("isGrounded", _isGrounded);
+
+
+    }
+
+    private void OnJump()
+    {
+        if (_isGrounded)
+        {
+            rb.AddForce(Vector3.up * _jumpImpulse, ForceMode.Impulse);
+        }
     }
 }
