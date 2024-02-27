@@ -7,8 +7,10 @@ public class GameManager : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI _timerText;
     [SerializeField] private TextMeshProUGUI _coinText;
+    [SerializeField] private TextMeshProUGUI _scoreText;
 
-    private int coinCount;
+    private int _coinCount;
+    private int _currentScore;
 
     public static GameManager instance;
 
@@ -20,26 +22,47 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void Update()
+    private void Start()
     {
-        UpdateTime();
+        StartCoroutine(UpdateTime());
     }
 
-    private void UpdateTime()
+    private IEnumerator UpdateTime()
     {
-        int intTime = 400 - (int)Time.realtimeSinceStartup;
-        string timeStr = $"Time \n{intTime}";
-        _timerText.text = timeStr;
+        int intTime = 10;
+        while(intTime >= 0)
+        {
+            string timeStr = $"Time \n{intTime}";
+            _timerText.text = timeStr;
+            yield return new WaitForSecondsRealtime(1f);
+            --intTime;
+        }
+        Debug.Log("Your time is up, Mario.");
+
     }
 
     public void AddCoin()
     {
-        ++coinCount;
-        UpdateCoinDisplay(coinCount);
+        ++_coinCount;
+        _currentScore += 100;
+        UpdateCoinDisplay(_coinCount);
+        UpdateScoreDisplay(_currentScore);
     }
 
     private void UpdateCoinDisplay(int coinCount)
     {
         _coinText.text = $"COINS \n{coinCount}";
+    }
+
+    private void UpdateScoreDisplay(int newScore)
+    {
+        string scoreFormatted = newScore.ToString("0000000");
+        _scoreText.text = $"MARIO \n{scoreFormatted}";
+    }
+
+    public void AddtoScore(int scoreToAdd)
+    {
+        _currentScore += scoreToAdd;
+        UpdateScoreDisplay(_currentScore);
     }
 }

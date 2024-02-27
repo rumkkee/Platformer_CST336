@@ -42,12 +42,12 @@ public class PlayerController : MonoBehaviour
             if(rb.velocity.y < 0)
             {
                 _fastFall = true;
-                Debug.Log("Fast fall");
+                //Debug.Log("Fast fall");
             }
             else if (Input.GetKey(KeyCode.Space))
             {
                 _fastFall = false;
-                Debug.Log("Holding space");
+                //Debug.Log("Holding space");
             }
         }
     }
