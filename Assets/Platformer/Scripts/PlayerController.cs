@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class PlayerController : MonoBehaviour
 {
@@ -16,10 +17,16 @@ public class PlayerController : MonoBehaviour
     private bool _jumpRequested;
     private bool _fastFall;
 
+    private IEnumerator _boost;
+
+    private Animator animator;
+
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
+        animator = GetComponent<Animator>();
+
     }
 
     private void Update()
@@ -34,10 +41,7 @@ public class PlayerController : MonoBehaviour
         {
             _jumpRequested = false;
 
-            /*if ()
-            {
 
-            }*/
 
             if(rb.velocity.y < 0)
             {
@@ -50,12 +54,12 @@ public class PlayerController : MonoBehaviour
                 //Debug.Log("Holding space");
             }
         }
+
+        animator.SetBool("isGrounded", _isGrounded);
     }
 
     private void FixedUpdate()
     {
-
-
         rb.velocity += Vector3.right * (_horizMovement * Time.deltaTime * _acceleration);
 
         // Jump Check
@@ -103,18 +107,54 @@ public class PlayerController : MonoBehaviour
         // Animator
 
         float speed = Mathf.Abs(rb.velocity.x);
-        Animator anim = GetComponent<Animator>();
-        anim.SetFloat("speed", speed);
-        anim.SetBool("isGrounded", _isGrounded);
+        animator.SetFloat("speed", speed);
 
+        //Debug.Log("is Grounded?" + _isGrounded);
 
     }
 
-    private void OnJump()
+    private void OnJump(InputValue value)
     {
+        Debug.Log("Jump pressed");
         if (_isGrounded)
         {
             rb.AddForce(Vector3.up * _jumpImpulse, ForceMode.Impulse);
         }
     }
+
+    private void OnBoost(InputValue value)
+    {
+        Debug.Log("Boost performed");
+        if(_boost == null && _isGrounded)
+        {
+            _boost = Boost();
+            StartCoroutine(_boost);
+        }
+    }
+
+    private IEnumerator Boost()
+    {
+        float boostSpeed = _maxSpeed * 10;
+        Vector2 facingDirection = transform.rotation.y > 0 ? Vector2.right : Vector2.left;
+        // TODO: Activate boost for about 0.8 seconds
+        rb.AddForce(facingDirection * boostSpeed, ForceMode.Impulse);
+        animator.SetBool("isBoosting", true);
+        yield return new WaitForSeconds(0.2f);
+        float duration = 0.4f;
+        float timePassed = 0;
+        while (timePassed < duration)
+        {
+            timePassed += Time.fixedDeltaTime;
+            rb.AddForce(boostSpeed * facingDirection);
+            yield return new WaitForFixedUpdate();
+        }
+
+        animator.SetBool("isBoosting", false);
+
+        yield return new WaitForSeconds(0.6f);
+
+        _boost = null;
+    }
+
+
 }
