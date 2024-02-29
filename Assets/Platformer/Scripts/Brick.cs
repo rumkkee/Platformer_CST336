@@ -13,6 +13,7 @@ public class Brick : MonoBehaviour, InteractableBlock
     {
         //Debug.Log("Brick hit!");
         ParticlesManager.instance.SpawnBrickParticles(this.transform.position);
+        GameManager.instance.AddtoScore(100);
         Destroy(gameObject);
     }
 }

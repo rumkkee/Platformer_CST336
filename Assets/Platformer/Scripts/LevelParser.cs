@@ -30,7 +30,7 @@ public class LevelParser : MonoBehaviour
     private void LoadLevel()
     {
         string fileToParse = $"{Application.dataPath}{"/Resources/"}{filename}.txt";
-        Debug.Log($"Loading level file: {fileToParse}");
+        //Debug.Log($"Loading level file: {fileToParse}");
 
         Stack<string> levelRows = new Stack<string>();
 
@@ -76,9 +76,6 @@ public class LevelParser : MonoBehaviour
                 {
                     Instantiate(questionBoxPrefab, pos, Quaternion.identity, environmentRoot);
                 }
-                
-                // Todo - Position the new GameObject at the appropriate location by using row and column
-                // Todo - Parent the new GameObject under levelRoot
             }
             row++;
         }
