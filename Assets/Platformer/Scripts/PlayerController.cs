@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviour
     private bool _isGrounded;
     private float _horizMovement;
 
-    private bool _jumpRequested;
     private bool _fastFall;
 
     private IEnumerator _boost;
@@ -33,15 +32,8 @@ public class PlayerController : MonoBehaviour
     {
        _horizMovement = Input.GetAxis("Horizontal");
 
-        if (_isGrounded && Input.GetKeyDown(KeyCode.Space))
+        if(!_isGrounded)
         {
-            _jumpRequested = true;
-        }
-        else if(!_isGrounded)
-        {
-            _jumpRequested = false;
-
-
 
             if(rb.velocity.y < 0)
             {
@@ -74,14 +66,14 @@ public class PlayerController : MonoBehaviour
         Color lineColor = _isGrounded ? Color.red : Color.blue;
         Debug.DrawLine(startPoint, endPoint, lineColor, 0f, false);
 
-        if (_jumpRequested)
+        if (!_isGrounded)
         {
-                rb.AddForce(Vector3.up * _jumpImpulse, ForceMode.Impulse);
+            if(_fastFall)
+            {
+                   rb.AddForce(Vector3.down * _jumpBoost, ForceMode.Force);
+            }
         }
-        else if(_fastFall)
-        {
-               rb.AddForce(Vector3.down * _jumpBoost, ForceMode.Force);
-        }
+
 
         // Speed Regulation
 
@@ -109,22 +101,18 @@ public class PlayerController : MonoBehaviour
         float speed = Mathf.Abs(rb.velocity.x);
         animator.SetFloat("speed", speed);
 
-        //Debug.Log("is Grounded?" + _isGrounded);
-
     }
 
     private void OnJump(InputValue value)
     {
-        Debug.Log("Jump pressed");
         if (_isGrounded)
         {
-            rb.AddForce(Vector3.up * _jumpImpulse, ForceMode.Impulse);
+            rb.AddForce(Vector3.up * _jumpImpulse * 10f, ForceMode.Impulse);
         }
     }
 
     private void OnBoost(InputValue value)
     {
-        Debug.Log("Boost performed");
         if(_boost == null && _isGrounded)
         {
             _boost = Boost();
@@ -136,7 +124,6 @@ public class PlayerController : MonoBehaviour
     {
         float boostSpeed = _maxSpeed * 10;
         Vector2 facingDirection = transform.rotation.y > 0 ? Vector2.right : Vector2.left;
-        // TODO: Activate boost for about 0.8 seconds
         rb.AddForce(facingDirection * boostSpeed, ForceMode.Impulse);
         animator.SetBool("isBoosting", true);
         yield return new WaitForSeconds(0.2f);

@@ -8,7 +8,7 @@ public class Clicker : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Mouse0))
         {
-            Debug.Log("Clicked!");
+            //Debug.Log("Clicked!");
             DrawClickerCast();
         }
     }
@@ -22,7 +22,7 @@ public class Clicker : MonoBehaviour
         float length = 4f;
         mousePos = new Vector3(mousePos.x, mousePos.y, startingZPos);
 
-        Debug.Log(mousePos);
+        //Debug.Log(mousePos);
 
         RaycastHit hitInfo;
 
